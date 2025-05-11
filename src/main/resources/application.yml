@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/stopwatch
+    username: admin
+    password: admin
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    change-log: classpath:/db/changelog-master.xml
+
+logging:
+  level:
+    com.example.stopwatch: DEBUG
+
+# Интервал генерации (мс)
+stopwatch:
+  producer:
+    interval-ms: 1000
+  shutdown:
+    timeout-seconds: 5
