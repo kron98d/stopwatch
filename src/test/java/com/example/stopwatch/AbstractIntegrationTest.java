@@ -16,8 +16,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 public abstract class AbstractIntegrationTest {
 
-    protected static PostgreSQLContainer<?> POSTGRESQL_CONTAINER;
-    protected static ToxiproxyContainer TOXIPROXY_CONTAINER;
+    private static PostgreSQLContainer<?> POSTGRESQL_CONTAINER;
+    private static ToxiproxyContainer TOXIPROXY_CONTAINER;
     protected static ToxiproxyContainer.ContainerProxy proxy;
 
     static {
@@ -38,10 +38,12 @@ public abstract class AbstractIntegrationTest {
 
     @DynamicPropertySource
     static void registerPgProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", POSTGRESQL_CONTAINER::getJdbcUrl);
+        String proxiedUrl = String.format("jdbc:postgresql://%s:%d/test", proxy.getContainerIpAddress(), proxy.getProxyPort());
+
+        registry.add("spring.datasource.url", () -> proxiedUrl);
         registry.add("spring.datasource.username", POSTGRESQL_CONTAINER::getUsername);
         registry.add("spring.datasource.password", POSTGRESQL_CONTAINER::getPassword);
-        registry.add("spring.liquibase.url", POSTGRESQL_CONTAINER::getJdbcUrl);
+        registry.add("spring.liquibase.url", () -> proxiedUrl);
         registry.add("spring.liquibase.user", POSTGRESQL_CONTAINER::getUsername);
         registry.add("spring.liquibase.password", POSTGRESQL_CONTAINER::getPassword);
     }
